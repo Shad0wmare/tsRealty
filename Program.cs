@@ -1,17 +1,21 @@
-﻿using System.Text.Json;
+using Newtonsoft.Json.Linq;
 
-using HttpClient client = new();
+HttpClient client = new();
+const string url = "https://pres.tsrealty.ru/testing.php";
 
-var repos = await ProcessRepositoriesAsyncStream(client);
-foreach (var repo in repos)
+
+var tsRealtyJson = await client.GetStringAsync(url);
+JObject parsedJson = JObject.Parse(tsRealtyJson);
+JObject fields = (JObject)parsedJson["result"]!["fields"]!;
+
+var query = fields.Properties().Select(n => new { Name = n.Name,
+                                                  Type = n.Children().Select(t => t["type"]!).First().Value<string>(),
+                                                  Title = n.Children().Select(t => t["title"]!).First().Value<string>() });
+
+foreach (var data in query)
 {
-    Console.WriteLine(repo);
+    if (data.Type == "enumeration")
+    {
+        Console.WriteLine($"Поле: {data.Name} имеет название: {data.Title} и является полем типа enumeration");
+    }
 }
-
-static async Task<Dictionary<string, object>> ProcessRepositoriesAsyncStream(HttpClient client)
-{
-    await using Stream stream = await client.GetStreamAsync("https://pres.tsrealty.ru/testing.php");
-    var tsRealtyJson = await JsonSerializer.DeserializeAsync<Dictionary<string, object>>(stream);
-    return tsRealtyJson ?? new();
-}
-
