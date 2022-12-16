@@ -1,10 +1,11 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 HttpClient client = new();
 const string url = "https://pres.tsrealty.ru/testing.php";
 
 var tsRealtyJson = await client.GetStringAsync(url);
-var parsedJson = JsonConvert.DeserializeObject<Root>(tsRealtyJson);
+var parsedJson = JsonSerializer.Deserialize<Root>(tsRealtyJson);
 foreach (var field in parsedJson!.Result!.Fields!)
 {
     Task<string> DataBaseImitation()
@@ -22,16 +23,16 @@ foreach (var field in parsedJson!.Result!.Fields!)
 
 public class Root
 {
-    public Result? Result { get; set; }
+    [JsonPropertyName("result")] public Result? Result { get; set; }
 }
 
 public class Result
 {
-    public Dictionary<string, Values>? Fields { get; set; }
+    [JsonPropertyName("fields")] public Dictionary<string, Values>? Fields { get; set; }
 }
 
 public class Values
 {
-    public string? Type { get; set; }
-    public string? Title { get; set; }
+    [JsonPropertyName("type")] public string? Type { get; set; }
+    [JsonPropertyName("title")] public string? Title { get; set; }
 }
