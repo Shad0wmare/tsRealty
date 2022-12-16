@@ -1,22 +1,22 @@
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 HttpClient client = new();
 const string url = "https://pres.tsrealty.ru/testing.php";
 
 var tsRealtyJson = await client.GetStringAsync(url);
 var parsedJson = JsonConvert.DeserializeObject<Root>(tsRealtyJson);
-foreach (var field in parsedJson.Result.Fields)
+foreach (var field in parsedJson!.Result!.Fields!)
 {
-    async Task dataBaseEmulation()
+    Task<string> DataBaseImitation()
     {
-        Console.WriteLine($"Поле {field.Key} добавлено в базу данных");
+        string addResult = $"Поле {field.Key} добавлено в базу данных";
+        return Task.FromResult(addResult);
     }
     
     if (field.Value.Type == "enumeration")
     {
         Console.WriteLine($"Поле: {field.Key}, имеет название: {field.Value.Title} и является полем типа {field.Value.Type}");
-        dataBaseEmulation();
+        Console.WriteLine(await DataBaseImitation());
     }
 }
 
